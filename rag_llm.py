@@ -9,12 +9,14 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 MODEL_NAME = "models/gemini-flash-latest"
 
 # --------- VECTOR DB (DISABLED QUERY MODE) ----------
-client = chromadb.PersistentClient(path="vectordb")
-
-collection = client.get_or_create_collection(
-    name="c_tutor",
-    embedding_function=None
+client = chromadb.Client(
+    settings=chromadb.Settings(
+        anonymized_telemetry=False
+    )
 )
+
+collection = client.get_or_create_collection("c_tutor")
+
 
 # --------- SAFE CONTEXT RETRIEVAL ----------
 def retrieve_context(question, k=4):

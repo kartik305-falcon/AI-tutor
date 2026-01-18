@@ -19,12 +19,17 @@ embedder = SentenceTransformer("all-MiniLM-L6-v2")
 # -------------------------
 # ChromaDB setup
 # -------------------------
-client = chromadb.PersistentClient(path=PERSIST_DIR)
+
+client = chromadb.Client(
+    settings=chromadb.Settings(
+        anonymized_telemetry=False
+    )
+)
 
 collection = client.get_or_create_collection(
-    name="c_tutor",
-    metadata={"hnsw:space": "cosine"}
+    name="c_tutor"
 )
+
 
 # -------------------------
 # Ingest uploaded text

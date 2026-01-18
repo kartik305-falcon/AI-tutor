@@ -1,0 +1,9 @@
+streamlit
+torch
+transformers
+pillow
+chromadb
+sentence-transformers
+google-generativeai
+PyMuPDF
+pandas

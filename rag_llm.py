@@ -19,8 +19,18 @@ collection = client.get_or_create_collection("c_tutor")
 
 
 # --------- SAFE CONTEXT RETRIEVAL ----------
-def retrieve_context(question, k=4):
-    return "Use standard C programming knowledge."
+def retrieve_context(question, k=2):
+    res = collection.query(
+        query_texts=[question],
+        n_results=k
+    )
+
+    if not res["documents"] or not res["documents"][0]:
+        return ""
+
+    # ⬇️ limit context length
+    return "\n\n".join(res["documents"][0])[:2000]
+
 
 
 # --------- PROMPT ----------
@@ -53,11 +63,23 @@ Then output ONLY valid JSON inside <json></json> tags with this schema:
 # --------- CALL MODEL ----------
 def ask_llm(prompt: str) -> str:
     model = genai.GenerativeModel(MODEL_NAME)
-    response = model.generate_content(
-        prompt,
-        generation_config={"temperature": 0.2}
-    )
-    return response.text
+
+    try:
+        response = model.generate_content(
+            prompt,
+            generation_config={
+                "temperature": 0.2,
+                "max_output_tokens": 512
+            },
+            request_options={
+                "timeout": 15  # ⬅️ IMPORTANT
+            }
+        )
+        return response.text
+
+    except Exception as e:
+        return "⚠️ Tutor is currently busy. Please try again in a moment."
+
 
 # --------- PARSE JSON ----------
 def extract_json(text):
